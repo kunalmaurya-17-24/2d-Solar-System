@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Solar System Simulation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #000;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        #canvas-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #control-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 350px;
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #fff;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .speed-slider {
+            width: 100%;
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .speed-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #4CAF50;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+
+        .speed-slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: #4CAF50;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+
+        .speed-value {
+            display: inline-block;
+            margin-left: 10px;
+            font-size: 12px;
+            color: #4CAF50;
+        }
+
+        .main-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 8px 16px;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .control-btn:hover {
+            background: linear-gradient(45deg, #45a049, #4CAF50);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .control-btn:active {
+            transform: translateY(0);
+        }
+
+        .planet-controls {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 15px;
+        }
+
+        .planet-controls h3 {
+            margin-bottom: 15px;
+            color: #4CAF50;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .planet-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .planet-name {
+            width: 80px;
+            font-size: 12px;
+            color: #fff;
+            text-align: left;
+        }
+
+        .planet-slider {
+            flex: 1;
+            margin: 0 10px;
+        }
+
+        .planet-value {
+            width: 30px;
+            font-size: 10px;
+            color: #4CAF50;
+            text-align: right;
+        }
+
+        #info-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 250px;
+            z-index: 100;
+            display: none;
+        }
+
+        #info-panel h3 {
+            color: #4CAF50;
+            margin-bottom: 10px;
+        }
+
+        #info-panel p {
+            font-size: 12px;
+            line-height: 1.4;
+            margin-bottom: 5px;
+        }
+
+        .planet-mercury { color: #8C7853; }
+        .planet-venus { color: #FFC649; }
+        .planet-earth { color: #6B93D6; }
+        .planet-mars { color: #C1440E; }
+        .planet-jupiter { color: #D8CA9D; }
+        .planet-saturn { color: #FAD5A5; }
+        .planet-uranus { color: #4FD0E7; }
+        .planet-neptune { color: #4B70DD; }
+
+        @media (max-width: 768px) {
+            #control-panel {
+                max-width: 90vw;
+                left: 5vw;
+                right: 5vw;
+            }
+            
+            #info-panel {
+                right: 5vw;
+                max-width: 90vw;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container">
+        <div id="control-panel">
+            <div class="main-controls">
+                <button id="pause-btn" class="control-btn">Pause</button>
+                <button id="reset-btn" class="control-btn">Reset</button>
+                <button id="theme-btn" class="control-btn">Dark Mode</button>
+            </div>
+            
+            <div class="planet-controls">
+                <h3>Planet Speed Controls</h3>
+                
+                <div class="planet-row">
+                    <span class="planet-name planet-mercury">Mercury</span>
+                    <input type="range" class="speed-slider planet-slider" 
+                           data-planet="mercury" min="0" max="5" step="0.1" value="1">
+                    <span class="planet-value">1.0x</span>
+                </div>
+                
+                <div class="planet-row">
+                    <span class="planet-name planet-venus">Venus</span>
+                    <input type="range" class="speed-slider planet-slider" 
+                           data-planet="venus" min="0" max="5" step="0.1" value="1">
+                    <span class="planet-value">1.0x</span>
+                </div>
+                
+                <div class="planet-row">
+                    <span class="planet-name planet-earth">Earth</span>
+                    <input type="range" class="speed-slider planet-slider" 
+                           data-planet="earth" min="0" max="5" step="0.1" value="1">
+                    <span class="planet-value">1.0x</span>
+                </div>
+                
+                <div class="planet-row">
+                    <span class="planet-name planet-mars">Mars</span>
+                    <input type="range" class="speed-slider planet-slider" 
+                           data-planet="mars" min="0" max="5" step="0.1" value="1">
+                    <span class="planet-value">1.0x</span>
+                </div>
+                
+                <div class="planet-row">
+                    <span class="planet-name planet-jupiter">Jupiter</span>
+                    <input type="range" class="speed-slider planet-slider" 
+                           data-planet="jupiter" min="0" max="5" step="0.1" value="1">
+                    <span class="planet-value">1.0x</span>
+                </div>
+                
+                <div class="planet-row">
+                    <span class="planet-name planet-saturn">Saturn</span>
+                    <input type="range" class="speed-slider planet-slider" 
+                           data-planet="saturn" min="0" max="5" step="0.1" value="1">
+                    <span class="planet-value">1.0x</span>
+                </div>
+                
+                <div class="planet-row">
+                    <span class="planet-name planet-uranus">Uranus</span>
+                    <input type="range" class="speed-slider planet-slider" 
+                           data-planet="uranus" min="0" max="5" step="0.1" value="1">
+                    <span class="planet-value">1.0x</span>
+                </div>
+                
+                <div class="planet-row">
+                    <span class="planet-name planet-neptune">Neptune</span>
+                    <input type="range" class="speed-slider planet-slider" 
+                           data-planet="neptune" min="0" max="5" step="0.1" value="1">
+                    <span class="planet-value">1.0x</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="info-panel">
+            <h3 id="info-title">Planet Info</h3>
+            <p id="info-content">Hover over a planet to see details</p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.9/dat.gui.min.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
