@@ -26,12 +26,15 @@ A comprehensive 3D solar system simulation built with Three.js featuring realist
 
 ## 🚀 How to Run
 
-### Option 1: Direct Browser
+### Option 1: Live Demo (GitHub Pages)
+🌐 **Live Demo**: https://kunalmaurya-17-24.github.io/2d-Solar-System/
+
+### Option 2: Direct Browser
 1. Download and extract the project files
 2. Open `index.html` in any modern web browser
 3. The simulation will start automatically
 
-### Option 2: Local Server (Recommended)
+### Option 3: Local Server (Recommended for Development)
 1. Open terminal/command prompt in the project directory
 2. Run a local server:
    ```bash
@@ -45,6 +48,15 @@ A comprehensive 3D solar system simulation built with Three.js featuring realist
    npx serve .
    ```
 3. Open `http://localhost:8000` in your browser
+
+### Setting up GitHub Pages
+To enable GitHub Pages for your fork:
+1. Go to your repository settings
+2. Scroll to "Pages" section
+3. Under "Source", select "Deploy from a branch"
+4. Choose "master" branch and "/ (root)" folder
+5. Click "Save"
+6. Your site will be available at: `https://yourusername.github.io/2d-Solar-System/`
 
 ## 🎮 Controls
 
